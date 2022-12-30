@@ -27,13 +27,17 @@ def nostdout():
 def TestOneInput(data):
     fdp = fuzz_helpers.EnhancedFuzzedDataProvider(data)
     try:
-        with fdp.ConsumeMemoryFile(all_data=True, as_bytes=False) as f, nostdout():
-            data = json.load(f)
+        with nostdout():
+            data = json.loads(fdp.ConsumeRemainingString())
             topojson.Topology(data)
-    except (JSONDecodeError, ImportError):
+    except (JSONDecodeError):
         return -1
+    except TypeError as e:
+        if 'object must be' in str(e):
+            return -1
+        raise
     except AttributeError:
-        if random.random() > .999:
+        if random.random() > .99:
             raise
         return -1
 
