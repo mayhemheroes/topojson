@@ -6,11 +6,21 @@ import sys
 import fuzz_helpers
 import json
 import io
+from contextlib import contextmanager
 
 with atheris.instrument_imports(include=['topojson']):
     import topojson
 
 from json import JSONDecodeError
+@contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    save_stderr = sys.stderr
+    sys.stdout = io.StringIO()
+    sys.stderr = io.StringIO()
+    yield
+    sys.stdout = save_stdout
+    sys.stderr = save_stderr
 
 @atheris.instrument_func
 def TestOneInput(data):
@@ -19,7 +29,7 @@ def TestOneInput(data):
         with fdp.ConsumeMemoryFile(all_data=True, as_bytes=False) as f, nostdout():
             data = json.load(f)
             topojson.Topology(data)
-    except (JSONDecodeError,AttributeError, ImportError):
+    except (JSONDecodeError, AttributeError, ImportError):
         return -1
 
 def main():
