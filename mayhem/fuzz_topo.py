@@ -7,6 +7,7 @@ import fuzz_helpers
 import json
 import io
 from contextlib import contextmanager
+import random
 
 with atheris.instrument_imports(include=['topojson']):
     import topojson
@@ -29,7 +30,11 @@ def TestOneInput(data):
         with fdp.ConsumeMemoryFile(all_data=True, as_bytes=False) as f, nostdout():
             data = json.load(f)
             topojson.Topology(data)
-    except (JSONDecodeError, AttributeError, ImportError):
+    except (JSONDecodeError):
+        return -1
+    except AttributeError:
+        if random.random() > .99:
+            raise
         return -1
 
 def main():
