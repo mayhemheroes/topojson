@@ -33,7 +33,7 @@ def TestOneInput(data):
     except (JSONDecodeError, ImportError):
         return -1
     except AttributeError:
-        if random.random() > .99:
+        if random.random() > .999:
             raise
         return -1
 
