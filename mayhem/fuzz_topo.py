@@ -30,7 +30,7 @@ def TestOneInput(data):
         with fdp.ConsumeMemoryFile(all_data=True, as_bytes=False) as f, nostdout():
             data = json.load(f)
             topojson.Topology(data)
-    except (JSONDecodeError):
+    except (JSONDecodeError, ImportError):
         return -1
     except AttributeError:
         if random.random() > .99:
