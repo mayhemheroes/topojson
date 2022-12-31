@@ -25,6 +25,7 @@ def TestOneInput(data):
         if random.random() > .9:
             raise
         return -1
+
 def main():
     atheris.Setup(sys.argv, TestOneInput)
     atheris.Fuzz()
