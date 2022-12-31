@@ -5,22 +5,37 @@ import atheris
 import sys
 import fuzz_helpers
 import json
+import random
+from contextlib import contextmanager
+import io
 
 with atheris.instrument_imports(include=['topojson']):
     import topojson
 
 from json import JSONDecodeError
+@contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    save_stderr = sys.stderr
+    sys.stdout = io.StringIO()
+    sys.stderr = io.StringIO()
+    yield
+    sys.stdout = save_stdout
+    sys.stderr = save_stderr
 
 @atheris.instrument_func
 def TestOneInput(data):
     fdp = fuzz_helpers.EnhancedFuzzedDataProvider(data)
     try:
-        with fdp.ConsumeMemoryFile(all_data=True, as_bytes=False) as f:
+        with fdp.ConsumeMemoryFile(all_data=True, as_bytes=False) as f, nostdout():
             data = json.load(f)
             topojson.Topology(data)
-    except (JSONDecodeError, AttributeError, ImportError):
+    except (JSONDecodeError, ImportError):
         return -1
-
+    except AttributeError:
+        if random.random() > 0.99:
+            raise
+        return 0
 def main():
     atheris.Setup(sys.argv, TestOneInput)
     atheris.Fuzz()
