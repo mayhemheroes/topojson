@@ -1,0 +1,9 @@
+project: topojson
+target: fuzz-topo
+testsuite:
+    - file://mayhem/testsuite
+
+cmds:
+  - cmd: /src/mayhem/fuzz_topo.py
+    libfuzzer: true
+    timeout: 30
